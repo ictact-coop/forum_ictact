@@ -112,11 +112,48 @@ ADMIN_USERNAME=아이디 ADMIN_PASSWORD=비밀번호 npm run start
    배포합니다.
 3. Vercel 프로젝트 환경변수에 `DATABASE_URL`, `DATABASE_AUTH_TOKEN`,
    `ADMIN_USERNAME`, `ADMIN_PASSWORD`를 등록합니다.
-4. 배포된 주소가 곧 QR코드로 안내할 참여 주소이자 `/display`, `/admin` 주소가
-   됩니다.
+4. 배포된 주소가 곧 QR코드로 안내할 참여 주소이자 `/display`, `/admin`,
+   `/manage` 주소가 됩니다.
 
 Turso 무료 티어와 Vercel Hobby 플랜 모두 이 정도 규모(2일, 방문객 단위 트래픽)
 행사에는 넉넉하며, 행사 후 사용하지 않으면 비용이 들지 않습니다.
+
+#### CLI로 한 번에 배포하기 (대시보드 대신)
+
+Vercel/Turso 대시보드를 오가지 않고 터미널에서 그대로 진행하려면:
+
+```bash
+# 0) CLI 준비 (최초 1회, 로그인은 브라우저가 뜹니다)
+npm i -g vercel
+curl -sSfL https://get.tur.so/install.sh | bash   # turso CLI 설치
+turso auth login
+vercel login
+
+# 1) Turso 데이터베이스 생성
+turso db create digital-chat
+DATABASE_URL=$(turso db show digital-chat --url)
+DATABASE_AUTH_TOKEN=$(turso db tokens create digital-chat)
+
+# 2) 이 저장소를 Vercel 프로젝트로 연결 (최초 1회, 대화형 질문에 답합니다)
+vercel link
+
+# 3) 환경변수 등록 (Production/Preview 둘 다 등록해두면 편합니다)
+vercel env add DATABASE_URL production
+vercel env add DATABASE_AUTH_TOKEN production
+vercel env add ADMIN_USERNAME production
+vercel env add ADMIN_PASSWORD production
+
+# 4) 프로덕션 배포
+vercel --prod
+```
+
+배포가 끝나면 `https://<내-주소>/api/health`로 `"database": "remote(DATABASE_URL)"`가
+나오는지 꼭 확인하세요. (아래 "자주 겪는 문제" 참고)
+
+> 배포 대상 저장소가 `Node.js 20.9 이상`을 쓰도록 `package.json`에 `engines`를
+> 지정해뒀고, `@libsql/client`의 네이티브 바인딩이 서버리스 함수에 잘못
+> 번들링되지 않도록 `next.config.js`에 `serverExternalPackages`도 설정해뒀습니다.
+> 별도로 신경 쓸 필요 없이 위 순서대로 배포하면 됩니다.
 
 #### Vercel 배포 시 자주 겪는 문제
 
