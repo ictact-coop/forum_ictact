@@ -88,6 +88,29 @@ function init(): Promise<void> {
           created_at INTEGER NOT NULL
         )
       `);
+
+      // 방문객이 직접 가입하는 사용자 계정. 운영자(admins)와는 별개의 로그인 체계이며,
+      // 임원/조합원/일반인 등급 구분과 임원 전용 관리 페이지(/manage)에 쓰입니다.
+      await db.execute(`
+        CREATE TABLE IF NOT EXISTS users (
+          id TEXT PRIMARY KEY,
+          username TEXT NOT NULL UNIQUE,
+          password_hash TEXT NOT NULL,
+          display_name TEXT,
+          role TEXT NOT NULL DEFAULT 'general',
+          created_at INTEGER NOT NULL,
+          role_updated_by TEXT,
+          role_updated_at INTEGER
+        )
+      `);
+
+      await db.execute(`
+        CREATE TABLE IF NOT EXISTS user_sessions (
+          token TEXT PRIMARY KEY,
+          user_id TEXT NOT NULL,
+          created_at INTEGER NOT NULL
+        )
+      `);
     })();
   }
   return ready;

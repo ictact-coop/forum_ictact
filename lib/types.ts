@@ -19,6 +19,16 @@ export interface ApiAdmin {
   created_by: string | null;
 }
 
+export interface ApiUser {
+  id: string;
+  username: string;
+  display_name: string | null;
+  role: "officer" | "member" | "general";
+  created_at: number;
+  role_updated_by: string | null;
+  role_updated_at: number | null;
+}
+
 export interface ApiBoard {
   id: string;
   kind: "main" | "extra";

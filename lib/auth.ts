@@ -1,7 +1,7 @@
 import { cookies } from "next/headers";
 import { nanoid } from "nanoid";
-import { randomBytes, scryptSync, timingSafeEqual } from "crypto";
 import { withDb } from "./db";
+import { hashPassword, verifyPassword } from "./password";
 
 export const ADMIN_COOKIE = "forum_admin_session";
 const SESSION_TTL_MS = 1000 * 60 * 60 * 12; // 12시간
@@ -11,21 +11,6 @@ export interface AdminRow {
   username: string;
   created_at: number;
   created_by: string | null;
-}
-
-function hashPassword(password: string): string {
-  const salt = randomBytes(16).toString("hex");
-  const hash = scryptSync(password, salt, 64).toString("hex");
-  return `${salt}:${hash}`;
-}
-
-function verifyPassword(password: string, stored: string): boolean {
-  const [salt, hash] = stored.split(":");
-  if (!salt || !hash) return false;
-  const candidate = scryptSync(password, salt, 64);
-  const expected = Buffer.from(hash, "hex");
-  if (candidate.length !== expected.length) return false;
-  return timingSafeEqual(candidate, expected);
 }
 
 /**

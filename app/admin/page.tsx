@@ -182,6 +182,9 @@ function Dashboard({
           >
             ⬇ CSV 내보내기
           </a>
+          <Link href="/manage" className="text-[13px] text-ink/40 hover:text-ink/70">
+            사용자 관리
+          </Link>
           <Link href="/board" className="text-[13px] text-ink/40 hover:text-ink/70">
             게시판
           </Link>
